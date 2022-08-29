@@ -3,7 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.2.32802.462
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CloudLFS.Cli", "src\CloudLFS.Cli\CloudLFS.Cli.csproj", "{FC0BD831-DFD5-48CE-9B55-CC5282CA0967}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CloudLfs2.Cli", "src\CloudLFS.Cli\CloudLfs2.Cli.csproj", "{FC0BD831-DFD5-48CE-9B55-CC5282CA0967}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CloudLfs2.Core", "src\CloudLFS.Core\CloudLfs2.Core.csproj", "{1D13BD53-AB4E-4801-BEC2-0E60D664655A}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CloudLfs2.Contracts", "src\CloudLFS.Contracts\CloudLfs2.Contracts.csproj", "{0CA55813-C7DD-42EC-93D5-E4B747FED6A8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +19,14 @@ Global
 		{FC0BD831-DFD5-48CE-9B55-CC5282CA0967}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FC0BD831-DFD5-48CE-9B55-CC5282CA0967}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FC0BD831-DFD5-48CE-9B55-CC5282CA0967}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1D13BD53-AB4E-4801-BEC2-0E60D664655A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1D13BD53-AB4E-4801-BEC2-0E60D664655A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1D13BD53-AB4E-4801-BEC2-0E60D664655A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1D13BD53-AB4E-4801-BEC2-0E60D664655A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0CA55813-C7DD-42EC-93D5-E4B747FED6A8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0CA55813-C7DD-42EC-93D5-E4B747FED6A8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0CA55813-C7DD-42EC-93D5-E4B747FED6A8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0CA55813-C7DD-42EC-93D5-E4B747FED6A8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

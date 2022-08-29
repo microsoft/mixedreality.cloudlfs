@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>enable</Nullable>
+		<RootNamespace>Microsoft.MixedReality.CloudLfs.Cli</RootNamespace>
+		<AssemblyName>cloudlfs</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CloudLFS.Core\CloudLfs2.Core.csproj" />
+  </ItemGroup>
+
+</Project>
