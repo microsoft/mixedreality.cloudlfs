@@ -13,8 +13,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\CloudLFS.Contracts\CloudLfs2.Contracts.csproj" />
-    <ProjectReference Include="..\CloudLFS.Core\CloudLfs2.Core.csproj" />
+    <ProjectReference Include="..\CloudLFS.Contracts\CloudLfs.Contracts.csproj" />
+    <ProjectReference Include="..\CloudLFS.Core\CloudLfs.Core.csproj" />
   </ItemGroup>
 
 </Project>
