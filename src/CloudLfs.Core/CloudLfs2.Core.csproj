@@ -6,4 +6,12 @@
 		<RootNamespace>Microsoft.MixedReality.CloudLfs</RootNamespace>
 	</PropertyGroup>
 
+	<ItemGroup>
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+	</ItemGroup>
+
+	<ItemGroup>
+    <ProjectReference Include="..\CloudLFS.Contracts\CloudLfs2.Contracts.csproj" />
+  </ItemGroup>
+
 </Project>

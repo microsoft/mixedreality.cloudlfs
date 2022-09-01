@@ -9,6 +9,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CloudLFS.Contracts\CloudLfs2.Contracts.csproj" />
     <ProjectReference Include="..\CloudLFS.Core\CloudLfs2.Core.csproj" />
   </ItemGroup>
 
