@@ -17,7 +17,7 @@ namespace CloudLfs.Core.UnitTests
             // arrange
             var broker = new BlobBroker(new Uri("https://cloudlfscachewusint.blob.core.windows.net/"));
             var id = Guid.NewGuid().ToString("n");
-            var buffer = new byte[1000000];
+            var buffer = new byte[1000];
             var rng = new Random();
             rng.NextBytes(buffer);
             using var memoryStream = new MemoryStream(buffer);
@@ -35,7 +35,7 @@ namespace CloudLfs.Core.UnitTests
             // arrange
             var broker = new BlobBroker(new Uri("https://cloudlfscachewusint.blob.core.windows.net/"));
             var id = Guid.NewGuid().ToString("n");
-            var buffer = new byte[1000000];
+            var buffer = new byte[1000];
             var rng = new Random();
             rng.NextBytes(buffer);
             using var uploadStream = new MemoryStream(buffer);
