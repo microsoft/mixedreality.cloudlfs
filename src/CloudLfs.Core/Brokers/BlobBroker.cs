@@ -1,4 +1,6 @@
-﻿using Microsoft.MixedReality.CloudLfs.Models;
+﻿using Azure.Identity;
+using Azure.Storage.Blobs;
+using Microsoft.MixedReality.CloudLfs.Models;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -10,14 +12,26 @@ namespace Microsoft.MixedReality.CloudLfs.Brokers
 {
     public class BlobBroker : IBlobBroker
     {
+        private Uri _storageUri;
+        private BlobServiceClient _blobServiceClient;
+
+        public BlobBroker(Uri storageUri)
+        {
+            _storageUri = storageUri;
+            _blobServiceClient = new BlobServiceClient(_storageUri, new DefaultAzureCredential());
+        }
+
         public Task<bool> DownloadAsync(string id, IProgress<TransferStatus> progress, Stream contentStream, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }
 
-        public Task<bool> UploadAsync(string id, IProgress<TransferStatus> progress, Stream contentStream, CancellationToken cancellationToken)
+        public async Task<bool> UploadAsync(string id, IProgress<TransferStatus> progress, Stream contentStream, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            var containerClient = _blobServiceClient.GetBlobContainerClient("objects");
+            var blobClient = containerClient.GetBlobClient(id);
+            await blobClient.UploadAsync(contentStream, true, cancellationToken);
+            return true;
         }
     }
 }

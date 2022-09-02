@@ -15,7 +15,7 @@ namespace CloudLfs.Core.UnitTests
         public async Task BlobBroker_CanUploadFile()
         {
             // arrange
-            var broker = new BlobBroker();
+            var broker = new BlobBroker(new Uri("https://cloudlfscachewusint.blob.core.windows.net/"));
             var id = Guid.NewGuid().ToString("n");
             var buffer = new byte[1000000];
             var rng = new Random();
