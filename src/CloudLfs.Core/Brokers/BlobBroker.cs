@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Microsoft.MixedReality.CloudLfs.Brokers
 {
-    internal class BlobBroker : IBlobBroker
+    public class BlobBroker : IBlobBroker
     {
         public Task<bool> DownloadAsync(string id, IProgress<TransferStatus> progress, Stream contentStream, CancellationToken cancellationToken)
         {

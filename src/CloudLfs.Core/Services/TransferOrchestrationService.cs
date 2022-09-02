@@ -61,7 +61,7 @@ namespace Microsoft.MixedReality.CloudLfs.Services
         private async Task UploadToCacheAsync(string objectId, FileStream contentStream)
         {
             var progress = new Progress<TransferStatus>();
-            await _blobBroker.UploadAsync(objectId, progress, contentStream);
+            await _blobBroker.UploadAsync(objectId, progress, contentStream, CancellationToken.None);
         }
 
         private async Task<bool> DownloadFromSourceAsync(string objectId, FileStream contentStream)
@@ -90,7 +90,7 @@ namespace Microsoft.MixedReality.CloudLfs.Services
                 _messageService.WriteMessage(new TransferProgressGitMessage(objectId, args.BytesSoFar, args.BytesSinceLast));
             };
 
-            if (await _blobBroker.DownloadAsync(objectId, progress, contentStream))
+            if (await _blobBroker.DownloadAsync(objectId, progress, contentStream, CancellationToken.None))
             {
                 // download complete
                 _messageService.WriteMessage(new TransferCompleteGitLfsMessage(objectId));
