@@ -21,9 +21,12 @@ namespace Microsoft.MixedReality.CloudLfs.Brokers
             _blobServiceClient = new BlobServiceClient(_storageUri, new DefaultAzureCredential());
         }
 
-        public Task<bool> DownloadAsync(string id, IProgress<TransferStatus> progress, Stream contentStream, CancellationToken cancellationToken)
+        public async Task<bool> DownloadAsync(string id, IProgress<TransferStatus> progress, Stream contentStream, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            var containerClient = _blobServiceClient.GetBlobContainerClient("objects");
+            BlobClient blobClient = containerClient.GetBlobClient(id);
+            await blobClient.DownloadToAsync(contentStream, cancellationToken);
+            return true;
         }
 
         public async Task<bool> UploadAsync(string id, IProgress<TransferStatus> progress, Stream contentStream, CancellationToken cancellationToken)

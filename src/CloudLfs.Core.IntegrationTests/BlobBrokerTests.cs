@@ -43,13 +43,14 @@ namespace CloudLfs.Core.UnitTests
 
             // act
             var uploadSucessful = await broker.UploadAsync(id, new Progress<TransferStatus>(), uploadStream, CancellationToken.None);
-            var downloadSucessful = await broker.DownloadAsync(id, new Progress<TransferStatus>(), uploadStream, CancellationToken.None);
+            var downloadSucessful = await broker.DownloadAsync(id, new Progress<TransferStatus>(), downloadStream, CancellationToken.None);
 
             // assert
             Assert.IsTrue(uploadSucessful);
             Assert.IsTrue(downloadSucessful);
 
             uploadStream.Position = 0;
+            downloadStream.Position = 0;
             for (var i = 0; i < downloadStream.Length; i++)
             {
                 Assert.AreEqual(uploadStream.ReadByte(), downloadStream.ReadByte());
