@@ -9,6 +9,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CloudLfs.Core", "src\CloudL
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CloudLfs.Contracts", "src\CloudLFS.Contracts\CloudLfs.Contracts.csproj", "{0CA55813-C7DD-42EC-93D5-E4B747FED6A8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CloudLfs.Core.UnitTests", "src\CloudLfs.Core.UnitTests\CloudLfs.Core.UnitTests.csproj", "{05A11384-3B12-4A0F-B213-FC82A0AA12A7}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CloudLfs.Core.IntegrationTests", "src\CloudLfs.Core.IntegrationTests\CloudLfs.Core.IntegrationTests.csproj", "{96F05626-BBE3-425C-B380-4C74E3E0F727}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +31,14 @@ Global
 		{0CA55813-C7DD-42EC-93D5-E4B747FED6A8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0CA55813-C7DD-42EC-93D5-E4B747FED6A8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0CA55813-C7DD-42EC-93D5-E4B747FED6A8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{05A11384-3B12-4A0F-B213-FC82A0AA12A7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{05A11384-3B12-4A0F-B213-FC82A0AA12A7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{05A11384-3B12-4A0F-B213-FC82A0AA12A7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{05A11384-3B12-4A0F-B213-FC82A0AA12A7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{96F05626-BBE3-425C-B380-4C74E3E0F727}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{96F05626-BBE3-425C-B380-4C74E3E0F727}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{96F05626-BBE3-425C-B380-4C74E3E0F727}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{96F05626-BBE3-425C-B380-4C74E3E0F727}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

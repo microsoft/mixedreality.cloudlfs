@@ -1,6 +1,9 @@
-﻿using Microsoft.MixedReality.CloudLfs.Models;
+﻿using Azure;
+using Azure.Storage.Blobs.Models;
+using Microsoft.MixedReality.CloudLfs.Models;
 using System;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Microsoft.MixedReality.CloudLfs.Brokers
@@ -13,7 +16,7 @@ namespace Microsoft.MixedReality.CloudLfs.Brokers
         /// <param name="id">The id of the content.</param>
         /// <param name="contentStream">The stream to write to.</param>
         /// <returns>True if the file was successfully downloaded, false otherwise.</returns>
-        public Task<bool> DownloadAsync(string id, IProgress<TransferStatus> progress, Stream contentStream);
+        public Task<Response> DownloadAsync(string id, IProgress<TransferStatus> progress, Stream contentStream, CancellationToken cancellationToken);
 
         /// <summary>
         /// Upload the content to the storage provider. Return FALSE if file could not be uploaded.
@@ -21,6 +24,6 @@ namespace Microsoft.MixedReality.CloudLfs.Brokers
         /// <param name="id">The id of the content.</param>
         /// <param name="contentStream">The stream to read from.</param>
         /// <returns>True if the file was successfully uploaded, false otherwise.</returns>
-        public Task<bool> UploadAsync(string id, IProgress<TransferStatus> progress, Stream contentStream);
+        public Task<Response<BlobContentInfo>> UploadAsync(string id, IProgress<TransferStatus> progress, Stream contentStream, CancellationToken cancellationToken);
     }
 }
