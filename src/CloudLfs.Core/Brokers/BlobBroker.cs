@@ -1,5 +1,7 @@
-﻿using Azure.Identity;
+﻿using Azure;
+using Azure.Identity;
 using Azure.Storage.Blobs;
+using Azure.Storage.Blobs.Models;
 using Microsoft.MixedReality.CloudLfs.Models;
 using System;
 using System.Collections.Generic;
@@ -21,20 +23,18 @@ namespace Microsoft.MixedReality.CloudLfs.Brokers
             _blobServiceClient = new BlobServiceClient(_storageUri, new DefaultAzureCredential());
         }
 
-        public async Task<bool> DownloadAsync(string id, IProgress<TransferStatus> progress, Stream contentStream, CancellationToken cancellationToken)
+        public async Task<Response> DownloadAsync(string blobName, IProgress<TransferStatus> progress, Stream contentStream, CancellationToken cancellationToken)
         {
             var containerClient = _blobServiceClient.GetBlobContainerClient("objects");
-            BlobClient blobClient = containerClient.GetBlobClient(id);
-            await blobClient.DownloadToAsync(contentStream, cancellationToken);
-            return true;
+            BlobClient blobClient = containerClient.GetBlobClient(blobName);
+            return await blobClient.DownloadToAsync(contentStream, cancellationToken);
         }
 
-        public async Task<bool> UploadAsync(string id, IProgress<TransferStatus> progress, Stream contentStream, CancellationToken cancellationToken)
+        public async Task<Response<BlobContentInfo>> UploadAsync(string blobName, IProgress<TransferStatus> progress, Stream contentStream, CancellationToken cancellationToken)
         {
             var containerClient = _blobServiceClient.GetBlobContainerClient("objects");
-            var blobClient = containerClient.GetBlobClient(id);
-            await blobClient.UploadAsync(contentStream, true, cancellationToken);
-            return true;
+            var blobClient = containerClient.GetBlobClient(blobName);
+            return await blobClient.UploadAsync(contentStream, true, cancellationToken);
         }
     }
 }

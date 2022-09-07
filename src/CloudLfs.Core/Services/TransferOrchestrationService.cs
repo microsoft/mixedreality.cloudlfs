@@ -90,12 +90,13 @@ namespace Microsoft.MixedReality.CloudLfs.Services
                 _messageService.WriteMessage(new TransferProgressGitMessage(objectId, args.BytesSoFar, args.BytesSinceLast));
             };
 
-            if (await _blobBroker.DownloadAsync(objectId, progress, contentStream, CancellationToken.None))
-            {
-                // download complete
-                _messageService.WriteMessage(new TransferCompleteGitLfsMessage(objectId));
-                return true;
-            }
+            // TODO: Handle response from BlobService or BlobProcessingService
+            //if (await _blobBroker.DownloadAsync(objectId, progress, contentStream, CancellationToken.None))
+            //{
+            //    // download complete
+            //    _messageService.WriteMessage(new TransferCompleteGitLfsMessage(objectId));
+            //    return true;
+            //}
 
             return false;
         }

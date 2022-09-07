@@ -1,3 +1,4 @@
+using Azure;
 using Microsoft.MixedReality.CloudLfs.Brokers;
 using Microsoft.MixedReality.CloudLfs.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -23,10 +24,12 @@ namespace CloudLfs.Core.UnitTests
             using var memoryStream = new MemoryStream(buffer);
 
             // act
-            var successful = await broker.UploadAsync(id, new Progress<TransferStatus>(), memoryStream, CancellationToken.None);
+            var response = await broker.UploadAsync(id, new Progress<TransferStatus>(), memoryStream, CancellationToken.None);
 
             // assert
-            Assert.IsTrue(successful);
+            var responseStatus = response.GetRawResponse();
+            Assert.IsFalse(responseStatus.IsError);
+            // we can also check status code
         }
 
         [TestMethod]
@@ -46,9 +49,6 @@ namespace CloudLfs.Core.UnitTests
             var downloadSucessful = await broker.DownloadAsync(id, new Progress<TransferStatus>(), downloadStream, CancellationToken.None);
 
             // assert
-            Assert.IsTrue(uploadSucessful);
-            Assert.IsTrue(downloadSucessful);
-
             uploadStream.Position = 0;
             downloadStream.Position = 0;
             for (var i = 0; i < downloadStream.Length; i++)
