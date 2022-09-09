@@ -35,7 +35,7 @@ namespace Microsoft.MixedReality.CloudLfs.Brokers
         public async Task<Response> DownloadAsync(string blobName, IProgress<long> progress, Stream contentStream, long startBytes, long endBytes, CancellationToken cancellationToken)
         {
             var blobClient = containerClient.GetBlockBlobClient(blobName);
-            var result = await blobClient.DownloadStreamingAsync(new HttpRange(startBytes, (endBytes - endBytes)), progressHandler: progress, cancellationToken: cancellationToken);
+            var result = await blobClient.DownloadStreamingAsync(new HttpRange(startBytes, (endBytes - startBytes)), progressHandler: progress, cancellationToken: cancellationToken);
             await result.Value.Content.CopyToAsync(contentStream);
             return result.GetRawResponse();
         }
