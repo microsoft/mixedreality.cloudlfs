@@ -16,9 +16,10 @@ namespace CloudLfs.Core.UnitTests
         public async Task BlobBroker_CanUploadFile()
         {
             // arrange
+            var size = 1024 * 1024 * 1024;
             var broker = new BlobBroker(new Uri("https://cloudlfscachewusint.blob.core.windows.net/"));
-            var id = Guid.NewGuid().ToString("n");
-            var buffer = new byte[1000];
+            var id = "file4";
+            var buffer = new byte[size];
             var rng = new Random();
             rng.NextBytes(buffer);
             using var memoryStream = new MemoryStream(buffer);
@@ -33,12 +34,12 @@ namespace CloudLfs.Core.UnitTests
         }
 
         [TestMethod]
-        public async Task BlobBroker_CanDownloadFile()
+        public async Task BlobBroker_CanUploadAndDownloadFile()
         {
             // arrange
             var broker = new BlobBroker(new Uri("https://cloudlfscachewusint.blob.core.windows.net/"));
             var id = Guid.NewGuid().ToString("n");
-            var buffer = new byte[1000];
+            var buffer = new byte[10000];
             var rng = new Random();
             rng.NextBytes(buffer);
             using var uploadStream = new MemoryStream(buffer);
@@ -55,6 +56,21 @@ namespace CloudLfs.Core.UnitTests
             {
                 Assert.AreEqual(uploadStream.ReadByte(), downloadStream.ReadByte());
             }
+        }
+
+        [TestMethod]
+        public async Task BlobBroker_CanDownloadFile()
+        {
+            // arrange
+            var broker = new BlobBroker(new Uri("https://cloudlfscachewusint.blob.core.windows.net/"));
+            var id = "file4";
+            using var downloadStream = new MemoryStream();
+
+            // act
+            var downloadSucessful = await broker.DownloadAsync(id, new Progress<TransferStatus>(), downloadStream, CancellationToken.None);
+
+            // assert
+            Assert.IsFalse(downloadSucessful.IsError);
         }
     }
 }
