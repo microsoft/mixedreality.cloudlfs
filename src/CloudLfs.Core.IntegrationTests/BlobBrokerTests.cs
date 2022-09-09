@@ -68,31 +68,6 @@ namespace CloudLfs.Core.UnitTests
         }
 
         [TestMethod]
-        public async Task BlobBroker_CanUploadAndDownloadFile()
-        {
-            // arrange
-            var broker = new BlobBroker(new Uri("https://cloudlfscachewusint.blob.core.windows.net/"));
-            var id = Guid.NewGuid().ToString("n");
-            var buffer = new byte[10000];
-            var rng = new Random();
-            rng.NextBytes(buffer);
-            using var uploadStream = new MemoryStream(buffer);
-            using var downloadStream = new MemoryStream();
-
-            // act
-            var uploadSucessful = await broker.UploadAsync(id, new Progress<long>(), uploadStream, CancellationToken.None);
-            var downloadSucessful = await broker.DownloadAsync(id, new Progress<long>(), downloadStream, CancellationToken.None);
-
-            // assert
-            uploadStream.Position = 0;
-            downloadStream.Position = 0;
-            for (var i = 0; i < downloadStream.Length; i++)
-            {
-                Assert.AreEqual(uploadStream.ReadByte(), downloadStream.ReadByte());
-            }
-        }
-
-        [TestMethod]
         public async Task BlobBroker_CanDownloadFile2()
         {
             // arrange

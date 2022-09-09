@@ -18,12 +18,10 @@ namespace Microsoft.MixedReality.CloudLfs.Services
     {
         private IBlobBroker _blobBroker;
         private ILogger _logger;
-        //private TelemetryClient _telemetryClient;
         public BlobService(ILogger logger)
         {
             _blobBroker = new BlobBroker(new Uri("https://cloudlfscachewusint.blob.core.windows.net/"));
             _logger = logger;
-            //_telemetryClient = new TelemetryClient();
         }
 
         public async Task<long> DownloadAsync(string blobName, CancellationToken cancellationToken)
@@ -36,7 +34,7 @@ namespace Microsoft.MixedReality.CloudLfs.Services
             var stopwatch = Stopwatch.StartNew();
             try
             {
-                var result = await _blobBroker.DownloadAsync(blobName, new Progress<TransferStatus>(), stream, cancellationToken);
+                var result = await _blobBroker.DownloadAsync(blobName, new Progress<long>(), stream, cancellationToken);
                 stopwatch.Stop();
                 contentLength = stream.Length;
                 stream.Dispose();
