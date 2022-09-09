@@ -60,7 +60,7 @@ namespace Microsoft.MixedReality.CloudLfs.Services
 
         private async Task UploadToCacheAsync(string objectId, FileStream contentStream)
         {
-            var progress = new Progress<TransferStatus>();
+            var progress = new Progress<long>();
             await _blobBroker.UploadAsync(objectId, progress, contentStream, CancellationToken.None);
         }
 
