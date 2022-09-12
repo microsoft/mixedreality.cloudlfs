@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Microsoft.MixedReality.CloudLfs.Services
 {
-    public class TransferOrchestrationService
+    public class TransferOrchestrationService : ITransferOrchestrationService
     {
         private readonly IGitLfsMessageService _messageService;
 
@@ -26,10 +26,12 @@ namespace Microsoft.MixedReality.CloudLfs.Services
         {
             while (!cancellationToken.IsCancellationRequested)
             {
+                await Task.Delay(10);
+
                 var message = _messageService.ReadMessage();
                 if (message is TerminateTransferGitLfsMessage)
                 {
-                    break;
+                    return;
                 }
                 else if (message is InitializeTransferGitLfsMessage)
                 {
@@ -39,6 +41,7 @@ namespace Microsoft.MixedReality.CloudLfs.Services
                 {
                     // create place for file
                     var tempFolderPath = Path.Combine(Path.GetTempPath(), "cloudlfs");
+                    Directory.CreateDirectory(tempFolderPath);
                     var tempFilePath = Path.Combine(tempFolderPath, downloadMessage.ObjectId);
                     using var contentStream = File.Open(tempFilePath, FileMode.Create);
 
@@ -46,15 +49,13 @@ namespace Microsoft.MixedReality.CloudLfs.Services
                     if (!await DownloadFromCacheAsync(downloadMessage.ObjectId, contentStream))
                     {
                         // try download from source...
-                        if (await DownloadFromSourceAsync(downloadMessage.ObjectId, contentStream))
+                        if (await DownloadFromSourceAsync(downloadMessage.ObjectId, downloadMessage.Size, contentStream))
                         {
                             // upload to cache for next consumer
                             await UploadToCacheAsync(downloadMessage.ObjectId, contentStream);
                         }
                     }
                 }
-
-                await Task.Delay(10);
             }
         }
 
@@ -64,7 +65,7 @@ namespace Microsoft.MixedReality.CloudLfs.Services
             await _blobBroker.UploadAsync(objectId, progress, contentStream, CancellationToken.None);
         }
 
-        private async Task<bool> DownloadFromSourceAsync(string objectId, FileStream contentStream)
+        private async Task<bool> DownloadFromSourceAsync(string objectId, long size, FileStream contentStream)
         {
             var progress = new Progress<TransferStatus>();
             progress.ProgressChanged += (sender, args) =>
@@ -72,7 +73,7 @@ namespace Microsoft.MixedReality.CloudLfs.Services
                 _messageService.WriteMessage(new TransferProgressGitMessage(objectId, args.BytesSoFar, args.BytesSinceLast));
             };
 
-            if (await _lfsBroker.DownloadAsync(objectId, progress, contentStream))
+            if (await _lfsBroker.DownloadAsync(objectId, size, progress, contentStream))
             {
                 // download complete
                 _messageService.WriteMessage(new TransferCompleteGitLfsMessage(objectId));
@@ -84,19 +85,14 @@ namespace Microsoft.MixedReality.CloudLfs.Services
 
         private async Task<bool> DownloadFromCacheAsync(string objectId, Stream contentStream)
         {
-            var progress = new Progress<TransferStatus>();
-            progress.ProgressChanged += (sender, args) =>
+            var progress = new Progress<long>();
+            var response = await _blobBroker.DownloadAsync(objectId, progress, contentStream, CancellationToken.None);
+            if (response != null)
             {
-                _messageService.WriteMessage(new TransferProgressGitMessage(objectId, args.BytesSoFar, args.BytesSinceLast));
-            };
-
-            // TODO: Handle response from BlobService or BlobProcessingService
-            //if (await _blobBroker.DownloadAsync(objectId, progress, contentStream, CancellationToken.None))
-            //{
-            //    // download complete
-            //    _messageService.WriteMessage(new TransferCompleteGitLfsMessage(objectId));
-            //    return true;
-            //}
+                // download complete
+                _messageService.WriteMessage(new TransferCompleteGitLfsMessage(objectId));
+                return true;
+            }
 
             return false;
         }

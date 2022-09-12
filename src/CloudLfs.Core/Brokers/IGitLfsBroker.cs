@@ -7,6 +7,6 @@ namespace Microsoft.MixedReality.CloudLfs.Brokers
 {
     public interface IGitLfsBroker
     {
-        Task<bool> DownloadAsync(string objectId, IProgress<TransferStatus> progress, Stream contentStream);
+        Task<bool> DownloadAsync(string objectId, long size, IProgress<TransferStatus> progress, Stream contentStream);
     }
 }

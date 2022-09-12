@@ -30,7 +30,19 @@ namespace Microsoft.MixedReality.CloudLfs.Services
             {
                 return new InitializeTransferGitLfsMessage
                 {
+                    Concurrent = initContract.Concurrent,
+                    ConcurrentTransfers = initContract.ConcurrentTransfers,
+                    Operation = initContract.Operation,
+                    Remote = initContract.Remote,
                 };
+            }
+            else if (contract is TerminateTransferGitLfsMessageV1)
+            {
+                return new TerminateTransferGitLfsMessage();
+            }
+            else if (contract is DownloadGitLfsMessageV1 downloadContract)
+            {
+                return new DownloadObjectLfsGitMessage(downloadContract.ObjectId, downloadContract.Size);
             }
             else
             {
