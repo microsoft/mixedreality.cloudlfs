@@ -29,7 +29,7 @@ namespace CloudLfs.Core.UnitTests
             await runTask;
 
             // assert
-            Assert.AreEqual(1, console.Output.Count);
+            Assert.AreEqual(3, console.Output.Count);
             Assert.AreEqual("{}", console.Output[0]);
         }
     }

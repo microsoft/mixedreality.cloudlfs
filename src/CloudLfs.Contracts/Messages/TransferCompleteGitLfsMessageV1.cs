@@ -8,5 +8,8 @@ namespace Microsoft.MixedReality.CloudLfs.Contracts.Messages
 
         [JsonProperty("oid")]
         public string ObjectId { get; set; } = null!;
+
+        [JsonProperty("path")]
+        public string Path { get; set; } = null!;
     }
 }

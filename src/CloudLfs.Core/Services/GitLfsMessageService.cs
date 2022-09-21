@@ -2,6 +2,7 @@
 using Microsoft.MixedReality.CloudLfs.Contracts.Messages;
 using Microsoft.MixedReality.CloudLfs.Models;
 using Newtonsoft.Json;
+using System;
 
 namespace Microsoft.MixedReality.CloudLfs.Services
 {
@@ -44,6 +45,10 @@ namespace Microsoft.MixedReality.CloudLfs.Services
             {
                 return new DownloadObjectLfsGitMessage(downloadContract.ObjectId, downloadContract.Size);
             }
+            else if (contract is UploadGitLfsMessageV1 uploadContract)
+            {
+                return new UploadObjectLfsGitMessage(uploadContract.ObjectId, uploadContract.Size, uploadContract.Path);
+            }
             else
             {
                 return null;
@@ -52,7 +57,34 @@ namespace Microsoft.MixedReality.CloudLfs.Services
 
         public void WriteMessage(GitLfsMessage message)
         {
-            var json = JsonConvert.SerializeObject(message, Formatting.None);
+            string json;
+
+            if (message is TransferCompleteGitLfsMessage contract)
+            {
+                json = JsonConvert.SerializeObject(new TransferCompleteGitLfsMessageV1
+                {
+                    ObjectId = contract.ObjectId,
+                    Path = contract.Path,
+                }, Formatting.None);
+            }
+            else if (message is AcknowledgeGitLfsMessage)
+            {
+                json = "{}";
+            }
+            else if (message is TransferProgressGitMessage progressMessage)
+            {
+                json = JsonConvert.SerializeObject(new TransferProgressGitLfsMessageV1
+                {
+                    ObjectId = progressMessage.ObjectId,
+                    BytesSinceLast = progressMessage.BytesSinceLast,
+                    BytesSoFar = progressMessage.BytesSoFar,
+                }, Formatting.None);
+            }
+            else
+            {
+                throw new NotSupportedException($"Message of type {message.GetType().Name} is not supported.");
+            }
+
             _console.WriteLine(json);
         }
     }

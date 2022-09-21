@@ -57,9 +57,9 @@ namespace Microsoft.MixedReality.CloudLfs.Cli
             var consoleBroker = new ConsoleBroker();
             var gitBroker = new GitBroker(repositoryPath ?? Directory.GetCurrentDirectory(), gitPath);
             var gitLfsMessageService = new GitLfsMessageService(consoleBroker);
-            var lfsBroker = new GitLfsBroker(await gitBroker.GetLfsEndpoint());
+            var lfsBroker = new GitLfsBroker(await gitBroker.GetLfsEndpoint(), (uri) => gitBroker.GetCredentials(uri.Host, uri.Scheme));
             var blobBroker = new AzureBlobBroker(new Uri(uriValue));
-            var transferService = new TransferOrchestrationService(gitLfsMessageService, blobBroker, lfsBroker);
+            var transferService = new TransferOrchestrationService(gitLfsMessageService, blobBroker, lfsBroker, await gitBroker.GetLfsTempPath());
 
             await transferService.RunAsync(cancellationToken);
         }

@@ -15,6 +15,8 @@ namespace Microsoft.MixedReality.CloudLfs.Brokers
 
         private Regex _endpointRegex = new Regex(@"Endpoint=(.*)\n");
 
+        private Regex _tempDirRegex = new Regex(@"TempDir=(.*)\n");
+
         private Regex _usernameRegex = new Regex(@"username=(.*)\n");
 
         private Regex _passwordRegex = new Regex(@"password=(.*)\n");
@@ -62,6 +64,18 @@ namespace Microsoft.MixedReality.CloudLfs.Brokers
 
         public async Task<Uri> GetLfsEndpoint()
         {
+            string output = await GetEnvVariables();
+
+            if (TryExtractMatch(output, _endpointRegex, out string endpoint))
+            {
+                return new Uri(_trimRegex.Replace(endpoint.Trim(), string.Empty).Trim());
+            }
+
+            throw new KeyNotFoundException("The Endpoint key was not found, check if repository is configured for LFS");
+        }
+
+        private async Task<string> GetEnvVariables()
+        {
             using var process = new Process()
             {
                 StartInfo = new ProcessStartInfo
@@ -79,13 +93,19 @@ namespace Microsoft.MixedReality.CloudLfs.Brokers
             process.WaitForExit();
 
             var output = await process.StandardOutput.ReadToEndAsync();
+            return output;
+        }
 
-            if (TryExtractMatch(output, _endpointRegex, out string endpoint))
+        public async Task<string> GetLfsTempPath()
+        {
+            string output = await GetEnvVariables();
+
+            if (TryExtractMatch(output, _tempDirRegex, out string endpoint))
             {
-                return new Uri(_trimRegex.Replace(endpoint.Trim(), string.Empty).Trim());
+                return endpoint.Trim();
             }
 
-            throw new KeyNotFoundException("The Endpoint key was not found, check if repository is configured for LFS");
+            throw new KeyNotFoundException("The TempDir key was not found, check if repository is configured for LFS");
         }
 
         private bool TryExtractMatch(string input, Regex regex, out string value)
