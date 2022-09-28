@@ -1,0 +1,72 @@
+name: Publish
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - "v[0-9]+.[0-9]+"
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checking out code
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+    
+    - name: Installing .NET
+      uses: actions/setup-dotnet@v2
+      with:
+        dotnet-version: 6.0.400
+        include-prerelease: true
+      
+    - name: Building Project
+      run: >-
+        dotnet publish
+        src/CloudLfs.Cli
+        -p:PublishSingleFile=true
+        -r win-x64
+        -c Release
+        --self-contained true
+        -p:PublishTrimmed=true
+        -o ./bin
+    
+    - name: Get version
+      id: version
+      uses: paulhatch/semantic-version@v4.0.3
+      with:
+        tag_prefix: "v"
+        major_pattern: "(MAJOR)"
+        minor_pattern: "(MINOR)"
+        bump_each_commit: false
+        format: "v${major}.${minor}.${patch}"
+        
+    - name: Generate Git Tag
+      uses: EndBug/latest-tag@latest
+      with:
+        ref: ${{ steps.version.outputs.version_tag }}
+    
+    - name: Creating Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ steps.version.outputs.version_tag }}
+        release_name: Release ${{ steps.version.outputs.version_tag }}
+        draft: false
+        prerelease: false
+                
+    - name: Publishing Release
+      id: publish-release-asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./bin/cloudlfs.exe
+        asset_name: cloudlfs.exe
+        asset_content_type: vnd.microsoft.portable-executable
