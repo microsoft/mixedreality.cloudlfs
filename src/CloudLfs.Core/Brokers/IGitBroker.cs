@@ -6,7 +6,7 @@ namespace Microsoft.MixedReality.CloudLfs.Brokers
 {
     public interface IGitBroker
     {
-        Task<NetworkCredential> GetCredential(string hostname, string protocol);
+        Task<NetworkCredential> GetCredentials(string hostname, string protocol);
 
         Task<Uri> GetLfsEndpoint();
     }

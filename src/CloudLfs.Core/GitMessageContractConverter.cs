@@ -23,7 +23,23 @@ namespace Microsoft.MixedReality.CloudLfs
             switch (eventType)
             {
                 case "init":
-                    message = new GitLfsMessageV1();
+                    message = new InitializeTransferGitLfsMessageV1();
+                    break;
+
+                case "terminate":
+                    message = new TerminateTransferGitLfsMessageV1();
+                    break;
+
+                case "complete":
+                    message = new TransferCompleteGitLfsMessageV1();
+                    break;
+
+                case "progress":
+                    message = new TransferProgressGitLfsMessageV1();
+                    break;
+
+                case "download":
+                    message = new DownloadGitLfsMessageV1();
                     break;
 
                 default:
