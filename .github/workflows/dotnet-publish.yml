@@ -49,9 +49,7 @@ jobs:
         release_name: Release ${{ github.ref }}
         draft: false
         prerelease: false
-        
-    - name: Log Build outputs
-        
+                
     - name: Publishing Release
       id: publish-release-asset
       uses: actions/upload-release-asset@v1
