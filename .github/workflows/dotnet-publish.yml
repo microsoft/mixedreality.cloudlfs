@@ -23,9 +23,6 @@ jobs:
       with:
         dotnet-version: 6.0.400
         include-prerelease: true
-        
-    - name: Restoring Packages
-      run: dotnet restore
       
     - name: Building Project
       run: >-
@@ -35,7 +32,6 @@ jobs:
         -r win-x64
         -c Release
         --self-contained true
-        --no-restore
         -p:PublishTrimmed=true
         -o ./bin
     
