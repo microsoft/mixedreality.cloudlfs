@@ -1,3 +1,5 @@
+using Microsoft.ApplicationInsights;
+using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.MixedReality.CloudLfs.Brokers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
@@ -11,11 +13,17 @@ namespace CloudLfs.Core.UnitTests
     [TestClass]
     public class AzureBlobBrokerTests
     {
+        private TelemetryClient _mockTelemetryChannel;
+
+        public  AzureBlobBrokerTests() {
+            _mockTelemetryChannel = new TelemetryClient(new TelemetryConfiguration());
+        }
+
         [TestMethod]
         public async Task BlobBroker_CanUploadAndDownloadFile()
         {
             // arrange
-            var broker = new AzureBlobBroker(new Uri("https://cloudlfswus2premiumint.blob.core.windows.net/"));
+            var broker = new AzureBlobBroker(_mockTelemetryChannel, new Uri("https://cloudlfswus2premiumint.blob.core.windows.net/"));
             for (var i = 0; i < 5; i++)
             {
                 var id = Guid.NewGuid().ToString("n");
@@ -47,7 +55,7 @@ namespace CloudLfs.Core.UnitTests
         public async Task BlobBroker_CanUploadFile()
         {
             // arrange
-            var broker = new AzureBlobBroker(new Uri("https://cloudlfscachewusint.blob.core.windows.net/"));
+            var broker = new AzureBlobBroker(_mockTelemetryChannel, new Uri("https://cloudlfscachewusint.blob.core.windows.net/"));
             var id = Guid.NewGuid().ToString("n");
             var buffer = new byte[1000];
             var rng = new Random();
@@ -67,7 +75,7 @@ namespace CloudLfs.Core.UnitTests
         public async Task BlobBroker_CanDownloadFile()
         {
             // arrange
-            var broker = new AzureBlobBroker(new Uri("https://cloudlfscachewusint.blob.core.windows.net/"));
+            var broker = new AzureBlobBroker(_mockTelemetryChannel, new Uri("https://cloudlfscachewusint.blob.core.windows.net/"));
             var id = Guid.NewGuid().ToString("n");
             var buffer = new byte[1000];
             var rng = new Random();
@@ -92,7 +100,7 @@ namespace CloudLfs.Core.UnitTests
         public async Task BlobBroker_CanDownloadFile2()
         {
             // arrange
-            var broker = new AzureBlobBroker(new Uri("https://cloudlfscachewusint.blob.core.windows.net/"));
+            var broker = new AzureBlobBroker(_mockTelemetryChannel, new Uri("https://cloudlfscachewusint.blob.core.windows.net/"));
             var downloadStream = new MemoryStream();
             var response = await broker.DownloadAsync("100MB.bin", new Progress<long>(), downloadStream, CancellationToken.None);
             Assert.IsTrue(response.Status <= 300);
