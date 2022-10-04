@@ -6,8 +6,9 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Microsoft.ApplicationInsights;
+using Microsoft.Extensions.Logging;
+using Microsoft.ApplicationInsights.Extensibility;
 
 namespace Microsoft.MixedReality.CloudLfs.Cli
 {
@@ -29,8 +30,10 @@ namespace Microsoft.MixedReality.CloudLfs.Cli
                 // define azure backend
                 var azureBlobCommand = new Command("azure", "Use the azure blob storage backend");
                 {
-                    var appInsightsConnectionOption = new Option<string>(new string[] { "-c", "--app-insights-connection-string" }, "The Connection String used for logging custom telemetry to an Azure Application Insights resource.");
+
                     var uriOption = new Option<string>("--uri", "The underlying URI of the storage account; the storage account must support block blobs.") { IsRequired = true };
+                    // TODO: get from config file
+                    var appInsightsConnectionOption = new Option<string>(new string[] { "-c", "--app-insights-connection-string" }, "The Connection String used for logging custom telemetry to an Azure Application Insights resource.");
                     azureBlobCommand.AddOption(uriOption);
                     azureBlobCommand.AddOption(appInsightsConnectionOption);
                     azureBlobCommand.SetHandler(
@@ -61,8 +64,9 @@ namespace Microsoft.MixedReality.CloudLfs.Cli
         private static async Task ExecuteAzureHandler(string uriValue, string gitPath, string repositoryPath, string appInsightsConnStr, CancellationToken cancellationToken)
         {
             var serviceProvider = InitServiceProvider(appInsightsConnStr);
-            var logger = serviceProvider.GetRequiredService<ILogger<Program>>();
-            var telemetryClient = serviceProvider.GetRequiredService<TelemetryClient>();
+            ILogger<Program> logger = serviceProvider.GetRequiredService<ILogger<Program>>();
+            TelemetryClient telemetryClient = serviceProvider.GetRequiredService<TelemetryClient>();
+            
             try
             {
                 var consoleBroker = new ConsoleBroker();
@@ -82,26 +86,61 @@ namespace Microsoft.MixedReality.CloudLfs.Cli
             {
                 // Explicitly call Flush() followed by sleep is required in Console Apps.
                 // This is to ensure that even if application terminates, telemetry is sent to the back-end.
-                if (telemetryClient != null) { 
+                if (!string.IsNullOrEmpty(appInsightsConnStr)) {
+                    logger.LogInformation("Flushing Telemetry");
                     telemetryClient.Flush();
                     await Task.Delay(5000, cancellationToken);
+                    logger.LogInformation("Telemetry Flushed");
                 }
             }
         }
 
+        /// <summary>
+        /// Creates a ServiceProvider that contains ILogger and TelemetryClient services.
+        /// If <paramref name="connectionString"/> is present, these services will log to the ApplicationInsights resource
+        /// </summary>
+        /// <param name="connectionString"></param>
+        /// <returns></returns>
         private static IServiceProvider InitServiceProvider(string connectionString)
         {
             IServiceCollection services = new ServiceCollection();
+            if (string.IsNullOrWhiteSpace(connectionString))
+            {
+                using var loggerFactory = LoggerFactory.Create(builder =>
+                {
+                    builder
+                    .AddFilter("Microsoft", LogLevel.Warning)
+                    .AddFilter("System", LogLevel.Warning)
+                    .AddFilter(typeof(Program).Namespace, LogLevel.Debug)
+                    .AddSimpleConsole(options =>
+                    {
+                        options.SingleLine = true;
+                        options.TimestampFormat = "[hh:mm:ss] ";
+                    });
+                });
+                services.AddSingleton(loggerFactory.CreateLogger<Program>());
+                services.AddSingleton(new TelemetryClient(new TelemetryConfiguration())); // create unconfigured telemetry service
+                return services.BuildServiceProvider();
+            }
+
             // logger
             services.AddLogging(loggingBuilder => {
-                loggingBuilder.AddApplicationInsights(
+                loggingBuilder
+                    .AddFilter("Microsoft", LogLevel.Warning)
+                    .AddFilter("System", LogLevel.Warning)
+                    .AddFilter(typeof(Program).Namespace, LogLevel.Debug)
+                    .AddApplicationInsights(
                         configureTelemetryConfiguration: (config) => config.ConnectionString = connectionString,
-                        configureApplicationInsightsLoggerOptions: (options) => { }
-                );
+                        configureApplicationInsightsLoggerOptions: (options) => { })
+                    .AddSimpleConsole(options =>
+                    {
+                        options.SingleLine = true;
+                        options.TimestampFormat = "[hh:mm:ss] ";
+                    });
             });
 
             // telemetry
-            services.AddApplicationInsightsTelemetryWorkerService((config) => config.ConnectionString = connectionString);
+            services.AddApplicationInsightsTelemetryWorkerService((config) => config.ConnectionString = connectionString); // TODO pull from config
             return services.BuildServiceProvider();
         }
     }
