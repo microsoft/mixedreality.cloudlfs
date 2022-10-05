@@ -49,7 +49,7 @@ namespace Microsoft.MixedReality.CloudLfs.Brokers
             finally
             {
                 stopwatch.Stop();
-                var azureBlobEvent = new AzureBlobEvent()
+                var azureBlobEvent = new AzureBlobTransferEvent()
                 {
                     ElapsedTimeInSeconds = stopwatch.ElapsedMilliseconds,
                     BlobName = blobName,
@@ -80,7 +80,7 @@ namespace Microsoft.MixedReality.CloudLfs.Brokers
             finally
             {
                 stopwatch.Stop();
-                var operation = new AzureBlobEvent()
+                var operation = new AzureBlobTransferEvent()
                 {
                     ElapsedTimeInSeconds = stopwatch.ElapsedMilliseconds,
                     BlobName = blobName,
@@ -108,7 +108,7 @@ namespace Microsoft.MixedReality.CloudLfs.Brokers
             finally
             {
                 stopwatch.Stop();
-                var operation = new AzureBlobEvent()
+                var operation = new AzureBlobTransferEvent()
                 {
                     ElapsedTimeInSeconds = stopwatch.ElapsedMilliseconds,
                     BlobName = blobName,
