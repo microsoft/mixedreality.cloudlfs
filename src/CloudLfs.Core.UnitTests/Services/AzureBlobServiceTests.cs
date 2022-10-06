@@ -35,14 +35,6 @@ namespace CloudLfs.Core.UnitTests.Services
         }
 
         [TestMethod]
-        public async Task BlobService_SuccessfulUploadTest()
-        {
-            // arrange
-            // act
-            // assert
-        }
-
-        [TestMethod]
         public async Task BlobService_SuccessfulDownloadTest()
         {
             // arrange
@@ -74,9 +66,34 @@ namespace CloudLfs.Core.UnitTests.Services
         }
 
         [TestMethod]
-        public async Task BlobService_FailureDownloadTest()
+        public async Task BlobService_SuccessfulUploadTest()
         {
-            
+            // arrange
+            // act
+            // assert
+        }
+
+
+        [TestMethod]
+        public async Task BlobService_RequestFailureDownloadTest()
+        {
+            // arrange
+
+            // act
+
+            // assert
+
+        }
+
+        [TestMethod]
+        public async Task BlobService_RequestFailureUploadTest()
+        {
+            // arrange
+
+            // act
+
+            // assert
+
         }
     }
 }
