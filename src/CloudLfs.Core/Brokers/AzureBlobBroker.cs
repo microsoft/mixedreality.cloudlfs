@@ -21,7 +21,7 @@ namespace Microsoft.MixedReality.CloudLfs.Brokers
         private BlobServiceClient _blobServiceClient;
 
         private readonly BlobContainerClient _containerClient;
-        
+
         private readonly TelemetryClient _telemetryClient;
 
         public AzureBlobBroker(TelemetryClient telmetryClient, Uri storageUri)
@@ -44,7 +44,7 @@ namespace Microsoft.MixedReality.CloudLfs.Brokers
             catch (RequestFailedException rfex)
             {
                 _telemetryClient.TrackException(rfex);
-                return null;
+                throw;
             }
             finally
             {
@@ -71,7 +71,7 @@ namespace Microsoft.MixedReality.CloudLfs.Brokers
                 var result = await blobClient.DownloadStreamingAsync(new HttpRange(startBytes, (endBytes - startBytes)), progressHandler: progress, cancellationToken: cancellationToken);
                 await result.Value.Content.CopyToAsync(contentStream);
                 return result.GetRawResponse();
-            } 
+            }
             catch (Exception e)
             {
                 _telemetryClient.TrackException(e);

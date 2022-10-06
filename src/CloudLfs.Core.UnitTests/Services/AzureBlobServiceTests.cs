@@ -47,21 +47,50 @@ namespace CloudLfs.Core.UnitTests.Services
             response.SetupGet(res => res.Status).Returns(200);
 
             _blobBroker
-                .Setup(broker => 
+                .Setup(broker =>
                     broker.DownloadAsync(It.IsAny<string>(), It.IsAny<IProgress<long>>(), It.IsAny<Stream>(), It.IsAny<CancellationToken>()))
                 .Returns(ValueTask.FromResult(response.Object).AsTask())
-                .Callback<string, IProgress<long>, Stream, CancellationToken>(async (blob, prog, stream, ct) => 
+                .Callback<string, IProgress<long>, Stream, CancellationToken>(async (blob, prog, stream, ct) =>
                     await expectedStream.CopyToAsync(contentStream, ct));
 
             // act
-            var responseResult = await _azureBlobService.DownloadAsync("test-blob", progress, contentStream, CancellationToken.None);
-            
+            await _azureBlobService.DownloadAsync("test-blob", progress, contentStream, CancellationToken.None);
+
             // assert
             Assert.AreEqual(BitConverter.ToString(expectedStream.ToArray()), BitConverter.ToString(contentStream.ToArray()));
-            Assert.AreEqual(responseResult, AzureBlobServiceResultCode.Success);
-            
-            _blobBroker.Verify(broker => 
-                broker.DownloadAsync(It.IsAny<string>(), It.IsAny<IProgress<long>>(), It.IsAny<Stream>(), It.IsAny<CancellationToken>()), 
+
+            _blobBroker.Verify(broker =>
+                broker.DownloadAsync(It.IsAny<string>(), It.IsAny<IProgress<long>>(), It.IsAny<Stream>(), It.IsAny<CancellationToken>()),
+                    Times.Once);
+        }
+
+        [TestMethod]
+        public async Task BlobService_SuccessfulDownloadTest_WithRange()
+        {
+            // arrange
+            IProgress<long> progress = new Progress<long>();
+            MemoryStream expectedStream = new(_content.AsSpan(2, 4).ToArray());
+            MemoryStream contentStream = new();
+            var response = new Mock<Response>();
+            response.Setup(res => res.ContentStream).Returns(expectedStream);
+            response.SetupGet(res => res.IsError).Returns(false);
+            response.SetupGet(res => res.Status).Returns(200);
+
+            _blobBroker
+                .Setup(broker =>
+                    broker.DownloadAsync(It.IsAny<string>(), It.IsAny<IProgress<long>>(), It.IsAny<Stream>(), It.IsAny<long>(), It.IsAny<long>(), It.IsAny<CancellationToken>()))
+                .Returns(ValueTask.FromResult(response.Object).AsTask())
+                .Callback<string, IProgress<long>, Stream, long, long, CancellationToken>(async (blob, prog, stream, startBytes, endBytes, ct) =>
+                    await expectedStream.CopyToAsync(contentStream, ct));
+
+            // act
+            await _azureBlobService.DownloadAsync("test-blob", progress, contentStream, 2, 6, CancellationToken.None);
+
+            // assert
+            Assert.AreEqual(BitConverter.ToString(expectedStream.ToArray().AsSpan(2, 4).ToArray()), BitConverter.ToString(contentStream.ToArray().AsSpan(2, 4).ToArray()));
+
+            _blobBroker.Verify(broker =>
+                broker.DownloadAsync(It.IsAny<string>(), It.IsAny<IProgress<long>>(), It.IsAny<Stream>(), It.IsAny<CancellationToken>()),
                     Times.Once);
         }
 
@@ -73,16 +102,35 @@ namespace CloudLfs.Core.UnitTests.Services
             // assert
         }
 
-
+        [ExpectedException(typeof(InvalidOperationException))]
         [TestMethod]
         public async Task BlobService_RequestFailureDownloadTest()
         {
             // arrange
+            IProgress<long> progress = new Progress<long>();
+            MemoryStream expectedStream = new(_content);
+            MemoryStream contentStream = new();
+            var response = new Mock<Response>();
+            response.Setup(res => res.ContentStream).Returns(expectedStream);
+            response.SetupGet(res => res.IsError).Returns(true);
+            response.SetupGet(res => res.Status).Returns(503);
+
+            _blobBroker
+                .Setup(broker =>
+                    broker.DownloadAsync(It.IsAny<string>(), It.IsAny<IProgress<long>>(), It.IsAny<Stream>(), It.IsAny<CancellationToken>()))
+                .Returns(ValueTask.FromResult(response.Object).AsTask())
+                .Callback<string, IProgress<long>, Stream, CancellationToken>(async (blob, prog, stream, ct) =>
+                    await expectedStream.CopyToAsync(contentStream, ct));
 
             // act
+            await _azureBlobService.DownloadAsync("test-blob", progress, contentStream, CancellationToken.None);
 
             // assert
+            Assert.AreEqual(BitConverter.ToString(expectedStream.ToArray()), BitConverter.ToString(contentStream.ToArray()));
 
+            _blobBroker.Verify(broker =>
+                broker.DownloadAsync(It.IsAny<string>(), It.IsAny<IProgress<long>>(), It.IsAny<Stream>(), It.IsAny<CancellationToken>()),
+                    Times.Once);
         }
 
         [TestMethod]
@@ -93,7 +141,6 @@ namespace CloudLfs.Core.UnitTests.Services
             // act
 
             // assert
-
         }
     }
 }

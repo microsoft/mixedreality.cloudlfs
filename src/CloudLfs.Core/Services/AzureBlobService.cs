@@ -22,17 +22,26 @@ namespace Microsoft.MixedReality.CloudLfs.Services
             _blobBroker = blobBroker;
         }
 
-        public async Task<AzureBlobServiceResultCode> DownloadAsync(string blobName, IProgress<long> progress, Stream contentStream, CancellationToken cancellationToken)
+        public async Task DownloadAsync(string blobName, IProgress<long> progress, Stream contentStream, CancellationToken cancellationToken)
+        {
+            if (string.IsNullOrWhiteSpace(blobName))
+            {
+                throw new ArgumentNullException(nameof(blobName));
+            }
+
+            var response = await _blobBroker.DownloadAsync(blobName, progress, contentStream, cancellationToken);
+            if (response.IsError)
+            {
+                throw new InvalidOperationException($"The remote service returned an error, {response.Status}");
+            }
+        }
+
+        public async Task DownloadAsync(string blobName, IProgress<long> progress, Stream contentStream, long startBytes, long endBytes, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }
 
-        public async Task<AzureBlobServiceResultCode> DownloadAsync(string blobName, IProgress<long> progress, Stream contentStream, long startBytes, long endBytes, CancellationToken cancellationToken)
-        {
-            throw new NotImplementedException();
-        }
-
-        public async Task<AzureBlobServiceResultCode> UploadAsync(string blobName, IProgress<long> progress, Stream contentStream, CancellationToken cancellationToken)
+        public async Task UploadAsync(string blobName, IProgress<long> progress, Stream contentStream, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }
