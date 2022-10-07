@@ -46,7 +46,15 @@ namespace Microsoft.MixedReality.CloudLfs.Services
 
         public async Task UploadAsync(string blobName, IProgress<long> progress, Stream contentStream, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            ValidateBlobName(blobName);
+
+            var response = await this._blobBroker.UploadAsync(
+                id: blobName,
+                progress: progress,
+                contentStream: contentStream,
+                cancellationToken: cancellationToken);
+
+            ValidateResponse(response.GetRawResponse());
         }
 
         public void ValidateBlobName(string blobName)
