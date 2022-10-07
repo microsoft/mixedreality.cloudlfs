@@ -24,26 +24,45 @@ namespace Microsoft.MixedReality.CloudLfs.Services
 
         public async Task DownloadAsync(string blobName, IProgress<long> progress, Stream contentStream, CancellationToken cancellationToken)
         {
-            if (string.IsNullOrWhiteSpace(blobName))
-            {
-                throw new ArgumentNullException(nameof(blobName));
-            }
+            ValidateBlobName(blobName);
 
             var response = await _blobBroker.DownloadAsync(blobName, progress, contentStream, cancellationToken);
-            if (response.IsError)
-            {
-                throw new InvalidOperationException($"The remote service returned an error, {response.Status}");
-            }
+            
+            ValidateResponse(response);
         }
 
         public async Task DownloadAsync(string blobName, IProgress<long> progress, Stream contentStream, long startBytes, long endBytes, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            ValidateBlobName(blobName);
+            
+            if (startBytes > endBytes || startBytes < 0 || endBytes < 0)
+            {
+                throw new ArgumentOutOfRangeException($"{nameof(startBytes)} should be greater than zero and less than {nameof(endBytes)}. {nameof(endBytes)} should be greater than zero");
+            }
+
+            var response = await _blobBroker.DownloadAsync(blobName, progress, contentStream, startBytes, endBytes, cancellationToken);
+            ValidateResponse(response);
         }
 
         public async Task UploadAsync(string blobName, IProgress<long> progress, Stream contentStream, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
+        }
+
+        public void ValidateBlobName(string blobName)
+        {
+            if (string.IsNullOrWhiteSpace(blobName))
+            {
+                throw new ArgumentNullException(nameof(blobName));
+            }
+        }
+
+        public void ValidateResponse(Response response)
+        {
+            if (response.IsError)
+            {
+                throw new InvalidOperationException($"The remote service returned an error, {response.Status}");
+            }
         }
     }
 }

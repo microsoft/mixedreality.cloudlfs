@@ -87,10 +87,11 @@ namespace CloudLfs.Core.UnitTests.Services
             await _azureBlobService.DownloadAsync("test-blob", progress, contentStream, 2, 6, CancellationToken.None);
 
             // assert
-            Assert.AreEqual(BitConverter.ToString(expectedStream.ToArray().AsSpan(2, 4).ToArray()), BitConverter.ToString(contentStream.ToArray().AsSpan(2, 4).ToArray()));
+            Assert.AreEqual(BitConverter.ToString(expectedStream.ToArray()),BitConverter.ToString(contentStream.ToArray()));
+            Assert.AreEqual(4, contentStream.Length);
 
             _blobBroker.Verify(broker =>
-                broker.DownloadAsync(It.IsAny<string>(), It.IsAny<IProgress<long>>(), It.IsAny<Stream>(), It.IsAny<CancellationToken>()),
+                broker.DownloadAsync(It.IsAny<string>(), It.IsAny<IProgress<long>>(), It.IsAny<Stream>(), It.IsAny<long>(), It.IsAny<long>(), It.IsAny<CancellationToken>()),
                     Times.Once);
         }
 
@@ -98,8 +99,26 @@ namespace CloudLfs.Core.UnitTests.Services
         public async Task BlobService_SuccessfulUploadTest()
         {
             // arrange
+            IProgress<long> progress = new Progress<long>();
+            MemoryStream contentStream = new(_content);
+            var response = new Mock<Response<BlobContentInfo>>();
+            response.SetupGet(res => res.GetRawResponse().IsError).Returns(false);
+            response.SetupGet(res => res.GetRawResponse().Status).Returns(200);
+
+            _blobBroker
+                .Setup(broker =>
+                    broker.UploadAsync(It.IsAny<string>(), It.IsAny<IProgress<long>>(), It.IsAny<Stream>(),
+                        It.IsAny<CancellationToken>()))
+                .ReturnsAsync(response.Object);
+
             // act
+            await _azureBlobService.UploadAsync("test-blob", progress, contentStream, CancellationToken.None);
+
             // assert
+
+            _blobBroker.Verify(broker =>
+                broker.UploadAsync(It.IsAny<string>(), It.IsAny<IProgress<long>>(), It.IsAny<Stream>(), It.IsAny<CancellationToken>()),
+                    Times.Once);
         }
 
         [ExpectedException(typeof(InvalidOperationException))]
