@@ -28,8 +28,6 @@ namespace Microsoft.MixedReality.CloudLfs.Services
         {
             while (!cancellationToken.IsCancellationRequested)
             {
-                await Task.Delay(10);
-
                 var message = _messageService.ReadMessage();
                 if (message is TerminateTransferGitLfsMessage)
                 {
