@@ -3,14 +3,14 @@ using Azure.Identity;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Azure.Storage.Blobs.Specialized;
+using Microsoft.ApplicationInsights;
+using Microsoft.MixedReality.CloudLfs.Models.Logging;
+using Newtonsoft.Json;
 using System;
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.MixedReality.CloudLfs.Models.Logging;
-using Newtonsoft.Json;
-using Microsoft.ApplicationInsights;
 
 namespace Microsoft.MixedReality.CloudLfs.Brokers
 {
@@ -21,7 +21,7 @@ namespace Microsoft.MixedReality.CloudLfs.Brokers
         private BlobServiceClient _blobServiceClient;
 
         private readonly BlobContainerClient _containerClient;
-        
+
         private readonly TelemetryClient _telemetryClient;
 
         public AzureBlobBroker(TelemetryClient telmetryClient, Uri storageUri)
@@ -51,13 +51,13 @@ namespace Microsoft.MixedReality.CloudLfs.Brokers
                 stopwatch.Stop();
                 var azureBlobEvent = new AzureBlobTransferEvent()
                 {
-                    ElapsedTimeInSeconds = stopwatch.ElapsedMilliseconds,
+                    ElapsedTimeMS = stopwatch.ElapsedMilliseconds,
                     BlobName = blobName,
                     BlobSize = contentStream.Length,
                     OperationType = "Download"
                 };
 
-                _telemetryClient.TrackEvent(JsonConvert.SerializeObject(azureBlobEvent));
+                _telemetryClient.TrackEvent(nameof(AzureBlobTransferEvent), azureBlobEvent.ToProperties(), azureBlobEvent.ToMetrics());
             }
         }
 
@@ -71,7 +71,7 @@ namespace Microsoft.MixedReality.CloudLfs.Brokers
                 var result = await blobClient.DownloadStreamingAsync(new HttpRange(startBytes, (endBytes - startBytes)), progressHandler: progress, cancellationToken: cancellationToken);
                 await result.Value.Content.CopyToAsync(contentStream);
                 return result.GetRawResponse();
-            } 
+            }
             catch (Exception e)
             {
                 _telemetryClient.TrackException(e);
@@ -82,7 +82,7 @@ namespace Microsoft.MixedReality.CloudLfs.Brokers
                 stopwatch.Stop();
                 var operation = new AzureBlobTransferEvent()
                 {
-                    ElapsedTimeInSeconds = stopwatch.ElapsedMilliseconds,
+                    ElapsedTimeMS = stopwatch.ElapsedMilliseconds,
                     BlobName = blobName,
                     BlobSize = contentStream.Length,
                     OperationType = "Download"
@@ -110,7 +110,7 @@ namespace Microsoft.MixedReality.CloudLfs.Brokers
                 stopwatch.Stop();
                 var operation = new AzureBlobTransferEvent()
                 {
-                    ElapsedTimeInSeconds = stopwatch.ElapsedMilliseconds,
+                    ElapsedTimeMS = stopwatch.ElapsedMilliseconds,
                     BlobName = blobName,
                     BlobSize = contentStream.Length,
                     OperationType = "Upload"
