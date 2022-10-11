@@ -9,6 +9,7 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Microsoft.MixedReality.CloudLfs.Brokers
@@ -30,7 +31,7 @@ namespace Microsoft.MixedReality.CloudLfs.Brokers
             _getCredentials = getCredentials;
         }
 
-        public async Task<bool> DownloadAsync(string objectId, long size, IProgress<TransferStatus> progress, Stream contentStream)
+        public async Task<bool> DownloadAsync(string objectId, long size, IProgress<TransferStatus> progress, Stream contentStream, CancellationToken cancellationToken)
         {
             var client = await CreateClient();
 
@@ -72,7 +73,7 @@ namespace Microsoft.MixedReality.CloudLfs.Brokers
             return true;
         }
 
-        public async Task<bool> UploadAsync(string objectId, long size, IProgress<TransferStatus> progress, Stream contentStream)
+        public async Task<bool> UploadAsync(string objectId, long size, IProgress<TransferStatus> progress, Stream contentStream, CancellationToken cancellationToken)
         {
             var client = await CreateClient();
 

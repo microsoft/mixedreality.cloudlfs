@@ -48,7 +48,7 @@ namespace Microsoft.MixedReality.CloudLfs.Services
                     _messageService.WriteMessage(new TransferProgressGitMessage(uploadMessage.ObjectId, 0, 0));
 
                     // upload to source always
-                    await UploadToSourceAsync(uploadMessage.ObjectId, uploadMessage.Size, contentStream);
+                    await UploadToSourceAsync(uploadMessage.ObjectId, uploadMessage.Size, contentStream, cancellationToken);
 
                     // download complete
                     contentStream.Close();
@@ -67,10 +67,10 @@ namespace Microsoft.MixedReality.CloudLfs.Services
                     _messageService.WriteMessage(new TransferProgressGitMessage(downloadMessage.ObjectId, 0, 0));
 
                     // try download from cache...
-                    if (!await DownloadFromCacheAsync(downloadMessage.ObjectId, contentStream))
+                    if (!await DownloadFromCacheAsync(downloadMessage.ObjectId, contentStream, cancellationToken))
                     {
                         // try download from source...
-                        if (await DownloadFromSourceAsync(downloadMessage.ObjectId, downloadMessage.Size, contentStream))
+                        if (await DownloadFromSourceAsync(downloadMessage.ObjectId, downloadMessage.Size, contentStream, cancellationToken))
                         {
                             // close write stream
                             contentStream.Close();
@@ -80,7 +80,7 @@ namespace Microsoft.MixedReality.CloudLfs.Services
                             contentStream = File.OpenRead(tempFilePath);
 
                             // upload to cache for next consumer
-                            await UploadToCacheAsync(downloadMessage.ObjectId, contentStream);
+                            await UploadToCacheAsync(downloadMessage.ObjectId, contentStream, cancellationToken);
                         }
                     }
 
@@ -92,7 +92,7 @@ namespace Microsoft.MixedReality.CloudLfs.Services
             }
         }
 
-        private async Task<bool> UploadToSourceAsync(string objectId, long size, FileStream contentStream)
+        private async Task<bool> UploadToSourceAsync(string objectId, long size, FileStream contentStream, CancellationToken cancellationToken)
         {
             var progress = new Progress<TransferStatus>();
             progress.ProgressChanged += (sender, args) =>
@@ -100,7 +100,7 @@ namespace Microsoft.MixedReality.CloudLfs.Services
                 _messageService.WriteMessage(new TransferProgressGitMessage(objectId, args.BytesSoFar, args.BytesSinceLast));
             };
 
-            if (await _lfsBroker.UploadAsync(objectId, size, progress, contentStream))
+            if (await _lfsBroker.UploadAsync(objectId, size, progress, contentStream, cancellationToken))
             {
                 return true;
             }
@@ -108,13 +108,13 @@ namespace Microsoft.MixedReality.CloudLfs.Services
             return false;
         }
 
-        private async Task UploadToCacheAsync(string objectId, FileStream contentStream)
+        private async Task UploadToCacheAsync(string objectId, FileStream contentStream, CancellationToken cancellationToken)
         {
             var progress = new Progress<long>();
-            await _blobBroker.UploadAsync(objectId, progress, contentStream, CancellationToken.None);
+            await _blobBroker.UploadAsync(objectId, progress, contentStream, cancellationToken);
         }
 
-        private async Task<bool> DownloadFromSourceAsync(string objectId, long size, FileStream contentStream)
+        private async Task<bool> DownloadFromSourceAsync(string objectId, long size, FileStream contentStream, CancellationToken cancellationToken)
         {
             var progress = new Progress<TransferStatus>();
             progress.ProgressChanged += (sender, args) =>
@@ -122,7 +122,7 @@ namespace Microsoft.MixedReality.CloudLfs.Services
                 _messageService.WriteMessage(new TransferProgressGitMessage(objectId, args.BytesSoFar, args.BytesSinceLast));
             };
 
-            if (await _lfsBroker.DownloadAsync(objectId, size, progress, contentStream))
+            if (await _lfsBroker.DownloadAsync(objectId, size, progress, contentStream, cancellationToken))
             {
                 return true;
             }
@@ -130,10 +130,10 @@ namespace Microsoft.MixedReality.CloudLfs.Services
             return false;
         }
 
-        private async Task<bool> DownloadFromCacheAsync(string objectId, FileStream contentStream)
+        private async Task<bool> DownloadFromCacheAsync(string objectId, FileStream contentStream, CancellationToken cancellationToken)
         {
             var progress = new Progress<long>();
-            var response = await _blobBroker.DownloadAsync(objectId, progress, contentStream, CancellationToken.None);
+            var response = await _blobBroker.DownloadAsync(objectId, progress, contentStream, cancellationToken);
             if (response != null)
             {
                 return true;

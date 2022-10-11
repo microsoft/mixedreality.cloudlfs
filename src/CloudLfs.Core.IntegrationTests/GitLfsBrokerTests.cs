@@ -4,6 +4,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.IO;
 using System.Security.Cryptography;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace CloudLfs.Core.UnitTests
@@ -24,7 +25,7 @@ namespace CloudLfs.Core.UnitTests
             const string oid = "c27599cee7e719d9712b958ad29cd8925741688ac4f993a48fc5b73248688195";
 
             // act
-            await lfsBroker.DownloadAsync(oid, 1000, new Progress<TransferStatus>(), contentStream);
+            await lfsBroker.DownloadAsync(oid, 1000, new Progress<TransferStatus>(), contentStream, CancellationToken.None);
 
             // assert - by convention, object id === sha256 hash
             var strHash = ComputeHash(contentStream);
@@ -44,7 +45,7 @@ namespace CloudLfs.Core.UnitTests
             const string oid = "c27599cee7e719d9712b958ad29cd8925741688ac4f993a48fc5b73248688195";
 
             // act
-            await lfsBroker.DownloadAsync(oid, 1000, new Progress<TransferStatus>(), contentStream);
+            await lfsBroker.DownloadAsync(oid, 1000, new Progress<TransferStatus>(), contentStream, CancellationToken.None);
 
             // assert - by convention, object id === sha256 hash
             var strHash = ComputeHash(contentStream);
@@ -68,7 +69,7 @@ namespace CloudLfs.Core.UnitTests
             contentStream.Position = 0;
 
             // act
-            await lfsBroker.UploadAsync(oid, 1000, new Progress<TransferStatus>(), contentStream);
+            await lfsBroker.UploadAsync(oid, 1000, new Progress<TransferStatus>(), contentStream, CancellationToken.None);
 
             // assert - by convention, object id === sha256 hash
             using var hashAlgo = SHA256.Create();

@@ -9,6 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.ApplicationInsights;
 using Microsoft.Extensions.Logging;
 using Microsoft.ApplicationInsights.Extensibility;
+using System.Net;
 
 namespace Microsoft.MixedReality.CloudLfs.Cli
 {
@@ -16,6 +17,7 @@ namespace Microsoft.MixedReality.CloudLfs.Cli
     {
         private static async Task Main(string[] args)
         {
+            ServicePointManager.DefaultConnectionLimit = 128;
             try
             {
                 // bind SIGINT and SIGTERM
